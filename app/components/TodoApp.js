@@ -1,22 +1,22 @@
 "use client"; // This is a client component
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 // To get the logged-in user's info if needed
-import { useAuth } from '@/app/contexts/AuthContext'; 
+import { useAuth } from "@/app/contexts/AuthContext";
 // To add a logout functionality
-import { signOut } from 'firebase/auth'; 
+import { signOut } from "firebase/auth";
 // Our client-side firebase auth instance
-import { auth } from '../lib/firebaseClient';
- // For redirection on logout
-import { useRouter } from 'next/navigation';
+import { auth } from "../lib/firebaseClient";
+// For redirection on logout
+import { useRouter } from "next/navigation";
 
 // Import our API helper functions
-import { fetchTodos, createTodo, updateTodo, deleteTodo } from '@/utils/helper'; 
+import { fetchTodos, createTodo, updateTodo, deleteTodo } from "@/utils/helper";
 
 export default function TodoApp() {
   const { user } = useAuth(); // Get the current user
   const [todos, setTodos] = useState([]);
-  const [newTodoText, setNewTodoText] = useState('');
+  const [newTodoText, setNewTodoText] = useState("");
   const [loading, setLoading] = useState(true); // General loading state for API operations
   const [error, setError] = useState(null);
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function TodoApp() {
   // Stores the ID of the todo currently being edited. Null if no todo is in edit mode.
   const [editingTodoId, setEditingTodoId] = useState(null);
   // Stores the text content of the todo being edited in the input field.
-  const [editingTodoText, setEditingTodoText] = useState('');
+  const [editingTodoText, setEditingTodoText] = useState("");
 
   // Function to load todos from the API
   const loadTodos = async () => {
@@ -34,7 +34,8 @@ export default function TodoApp() {
       const data = await fetchTodos();
       if (Array.isArray(data)) {
         setTodos(data);
-      } else if (data && Array.isArray(data.todos)) { // Fallback if API sends { todos: [...] }
+      } else if (data && Array.isArray(data.todos)) {
+        // Fallback if API sends { todos: [...] }
         setTodos(data.todos);
       } else {
         setTodos([]); // Default to empty array if unexpected data structure
@@ -49,7 +50,7 @@ export default function TodoApp() {
 
   // Handle adding a new todo item
   const handleAddTodo = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     if (!newTodoText.trim()) {
       setError("Todo text cannot be empty.");
       return;
@@ -59,9 +60,8 @@ export default function TodoApp() {
 
     try {
       await createTodo({ text: newTodoText, completed: false }); // Include completed: false for new todos
-      setNewTodoText(''); // Clear the input field
+      setNewTodoText(""); // Clear the input field
       await loadTodos(); // Reload the list to show the new todo
-
     } catch (err) {
       setError("Failed to add todo: " + err.message);
       console.error("Add todo error:", err);
@@ -106,7 +106,7 @@ export default function TodoApp() {
       // Call the helper function to update the todo
       await updateTodo(id, { text: editingTodoText });
       setEditingTodoId(null); // Exit editing mode
-      setEditingTodoText(''); // Clear editing input field
+      setEditingTodoText(""); // Clear editing input field
       await loadTodos(); // Reload todos to show the updated item
     } catch (err) {
       setError("Failed to update todo: " + err.message);
@@ -119,7 +119,7 @@ export default function TodoApp() {
   //Handle Cancel Edit
   const handleCancelEdit = () => {
     setEditingTodoId(null); // Exit editing mode
-    setEditingTodoText(''); // Clear editing input
+    setEditingTodoText(""); // Clear editing input
     setError(null); // Clear errors
   };
 
@@ -128,7 +128,7 @@ export default function TodoApp() {
     router.push(`/todos/${id}`);
   };
 
-   //Handle Toggling Completed Status
+  //Handle Toggling Completed Status
   const handleToggleCompleted = async (id, currentCompletedStatus) => {
     setError(null);
     setLoading(true); // Indicate loading for this operation
@@ -145,10 +145,10 @@ export default function TodoApp() {
     }
   };
 
-
   // Effect to load todos when the component mounts or user changes
   useEffect(() => {
-    if (user) { // Only load if a user is logged in
+    if (user) {
+      // Only load if a user is logged in
       loadTodos();
     } else {
       setTodos([]); // Clear todos if no user
@@ -160,7 +160,7 @@ export default function TodoApp() {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      router.push('/'); // Explicitly push to root (AuthContext handles the state change)
+      router.push("/"); // Explicitly push to root (AuthContext handles the state change)
     } catch (err) {
       setError("Failed to sign out: " + err.message);
       console.error("Sign out error:", err);
@@ -169,7 +169,11 @@ export default function TodoApp() {
 
   // Conditional rendering for initial loading state (when no todos are displayed yet)
   if (loading && todos.length === 0) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-700">Loading todos...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-700">
+        Loading todos...
+      </div>
+    );
   }
 
   return (
@@ -276,8 +280,8 @@ export default function TodoApp() {
                       <span
                         className={`text-base sm:text-lg text-gray-800 ${
                           todo.completed ? "line-through text-gray-500" : ""
-                        } overflow-hidden text-ellipsis whitespace-nowrap`}
-                        style={{ minWidth: "0" }}
+                        } break-words`}
+                        // style={{ minWidth: "0" }}
                       >
                         {todo.text}
                       </span>
@@ -304,7 +308,6 @@ export default function TodoApp() {
                       >
                         Delete
                       </button>
-                      
                     </div>
                   </>
                 )}
